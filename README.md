@@ -23,11 +23,17 @@ Build the image:
 docker build -t languagetool-llm .
 ```
 
-Set the API key in the shell, then run the single container:
+Set the LiteLLM connection values in the shell, then run the single container. The API base must be reachable from inside the container and normally ends in `/v1`:
 
 ```bash
+export LT_LLM_API_BASE=https://litellm.example.com/v1
+export LT_LLM_API_KEY=YOUR_LITELLM_API_KEY
+export LT_LLM_MODEL=YOUR_LITELLM_MODEL
+
 docker run --name languagetool-llm \
+  --env LT_LLM_API_BASE \
   --env LT_LLM_API_KEY \
+  --env LT_LLM_MODEL \
   --publish 8081:8081 \
   --volume languagetool-llm-cache:/data \
   languagetool-llm
@@ -47,7 +53,7 @@ docker build \
 
 1. Create one application using the repository's `Dockerfile`.
 2. Configure container port `8081` and route the desired HTTPS domain to it.
-3. Set `LT_LLM_API_KEY` as a Dokploy environment variable.
+3. Set `LT_LLM_API_BASE`, `LT_LLM_API_KEY`, and `LT_LLM_MODEL` as Dokploy environment variables.
 4. Optionally mount persistent storage at `/data` for the classification cache.
 5. Optionally mount configuration files as described below.
 6. Use `/v2/languages` as an HTTP health-check path on port 8081.
@@ -72,7 +78,9 @@ Mount an individual file read-only:
 
 ```bash
 docker run --rm \
+  --env LT_LLM_API_BASE \
   --env LT_LLM_API_KEY \
+  --env LT_LLM_MODEL \
   --publish 8081:8081 \
   --mount type=bind,src="$(pwd)/remote-rules.json",dst=/config/remote-rules.json,readonly \
   languagetool-llm
@@ -99,18 +107,31 @@ The default entrypoint paths can also be changed with:
 
 ## Environment settings
 
-`LT_LLM_API_KEY` is required and must be supplied at runtime. Never commit it or a populated `.env` file.
+These are all environment variables added for the LiteLLM rule functionality. Non-empty values override the corresponding settings in `sidecar.properties`. The defaults shown are for the included Docker image.
 
-Common optional overrides are:
+| Variable | Docker default | Purpose |
+| --- | --- | --- |
+| `LT_LLM_API_BASE` | `http://127.0.0.1:4000/v1` | OpenAI-compatible LiteLLM proxy base URL. Set it to an address reachable from the container; `127.0.0.1` refers to the container itself. |
+| `LT_LLM_API_KEY` | Not set | Bearer token sent to LiteLLM. Required when LLM checking is enabled and rules are loaded. Never commit this value or a populated `.env` file. |
+| `LT_LLM_MODEL` | `gpt-5` | Model or route name configured in the LiteLLM proxy. |
+| `LT_LLM_ENABLED` | `true` | Enables or disables all LLM checks. Must be `true` or `false`. |
+| `LT_LLM_DISABLED_RULES` | Empty | Comma-separated rule IDs to disable. |
+| `LT_LLM_RULES_DIRECTORY` | `/config/rules` | Directory containing external rule descriptors and prompt files. |
+| `LT_LLM_MINIMUM_SENTENCE_CHARACTERS` | `20` | Skips LLM requests for sentences shorter than this many characters. |
+| `LT_LLM_REQUEST_TIMEOUT_SECONDS` | `30` | Timeout for each LiteLLM HTTP request. |
+| `LT_LLM_MAX_CONCURRENT_REQUESTS` | `3` | Maximum number of simultaneous LiteLLM requests. |
+| `LT_LLM_CACHE_DIRECTORY` | `/data/cache` | Writable directory for cached classifications. |
+| `LT_LLM_CACHE_TTL_SECONDS` | `86400` | Lifetime of successful cached classifications. |
+| `LT_LLM_ERROR_CACHE_TTL_SECONDS` | `30` | Lifetime of cached LiteLLM failures. |
+| `LT_LLM_FAIL_OPEN` | `true` | When `true`, LiteLLM failures do not produce LanguageTool matches. Must be `true` or `false`. |
 
-- `LT_LLM_API_BASE`
-- `LT_LLM_MODEL`
-- `LT_LLM_ENABLED`
-- `LT_LLM_DISABLED_RULES`
-- `LT_LLM_RULES_DIRECTORY`
-- `LT_LLM_CACHE_DIRECTORY`
-- `LT_LLM_MAX_CONCURRENT_REQUESTS`
-- `LT_LLM_REQUEST_TIMEOUT_SECONDS`
+For example, a Dokploy deployment using an external LiteLLM proxy normally needs:
+
+```text
+LT_LLM_API_BASE=https://litellm.example.com/v1
+LT_LLM_API_KEY=YOUR_LITELLM_API_KEY
+LT_LLM_MODEL=YOUR_LITELLM_MODEL
+```
 
 Disable any number of rules without adding per-rule settings:
 
