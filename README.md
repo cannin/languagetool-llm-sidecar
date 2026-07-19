@@ -43,13 +43,12 @@ docker build \
 
 ## Dokploy
 
-1. Push this repository to a Git provider accessible to Dokploy.
-2. Create one application using the repository's `Dockerfile`.
-3. Configure container port `8081` and route the desired HTTPS domain to it.
-4. Set `LT_LLM_API_KEY` as a Dokploy environment variable.
-5. Optionally mount persistent storage at `/data` for the classification cache.
-6. Optionally mount configuration files as described below.
-7. Use `/v2/languages` as an HTTP health-check path on port 8081.
+1. Create one application using the repository's `Dockerfile`.
+2. Configure container port `8081` and route the desired HTTPS domain to it.
+3. Set `LT_LLM_API_KEY` as a Dokploy environment variable.
+4. Optionally mount persistent storage at `/data` for the classification cache.
+5. Optionally mount configuration files as described below.
+6. Use `/v2/languages` as an HTTP health-check path on port 8081.
 
 The [compose.example.yaml](compose.example.yaml) file demonstrates the same one-container deployment for local testing. Dokploy does not require Compose when deploying the Dockerfile directly.
 
@@ -163,12 +162,3 @@ java -jar target/languagetool-llm-sidecar.jar
 ```
 
 An optional uncommitted `.env` file may provide `LT_LLM_API_KEY` for local development. The Docker and Dokploy deployments should use runtime environment variables instead.
-
-## Publish the repository
-
-After creating an empty remote repository:
-
-```bash
-git remote add origin YOUR_REPOSITORY_URL
-git push -u origin main
-```
