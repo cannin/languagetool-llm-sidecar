@@ -1,0 +1,3 @@
+# Add one descriptor filename per line. External rules do not use this index.
+cats.properties
+flowers.properties

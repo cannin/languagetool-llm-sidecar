@@ -1,0 +1,19 @@
+services:
+  languagetool:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      LT_LLM_API_KEY: ${LT_LLM_API_KEY}
+    ports:
+      - "8081:8081"
+    volumes:
+      - languagetool_cache:/data
+      # To replace all image defaults, mount a directory containing
+      # languagetool.properties, remote-rules.json, sidecar.properties,
+      # and rules/:
+      # - ./deployment-config:/config:ro
+    restart: unless-stopped
+
+volumes:
+  languagetool_cache:

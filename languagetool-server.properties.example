@@ -1,0 +1,3 @@
+# LanguageTool reads this file when started with --config.
+# This universal in-container path may be replaced with a file mount.
+remoteRulesFile=/config/remote-rules.json

@@ -1,0 +1,15 @@
+[
+  {
+    "ruleId": "LLM_SIDECAR",
+    "url": "127.0.0.1",
+    "port": 50051,
+    "type": "grpc",
+    "language": "en.*",
+    "baseTimeoutMilliseconds": 120000,
+    "downMilliseconds": 5000,
+    "options": {
+      "batchSize": "8",
+      "maxSentenceLength": "4000"
+    }
+  }
+]

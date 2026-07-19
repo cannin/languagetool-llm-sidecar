@@ -1,0 +1,19 @@
+# Every setting is optional. These values are the embedded defaults.
+sidecar.host = 0.0.0.0
+sidecar.port = 50051
+
+llm.enabled = true
+# Comma-separated rule IDs; one setting works for any number of rules.
+llm.disabledRules =
+llm.apiBase = http://127.0.0.1:4000/v1
+llm.apiKeyEnv = LT_LLM_API_KEY
+llm.model = gpt-5
+# Every *.properties descriptor in this directory becomes another LLM rule.
+llm.rulesDirectory = rules
+llm.minimumSentenceCharacters = 20
+llm.requestTimeoutSeconds = 30
+llm.maxConcurrentRequests = 3
+llm.cacheDirectory = /tmp/languagetool-llm-sidecar-cache
+llm.cacheTtlSeconds = 86400
+llm.errorCacheTtlSeconds = 30
+llm.failOpen = true

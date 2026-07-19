@@ -1,0 +1,8 @@
+# Copy this file to rules/my-topic.properties, then edit every value below.
+id = MY_TOPIC_LLM
+enabled = true
+shortMessage = My topic reference
+description = My topic reference policy
+categoryId = LLM_POLICY
+categoryName = LLM policy
+promptFile = my-topic-prompt.txt

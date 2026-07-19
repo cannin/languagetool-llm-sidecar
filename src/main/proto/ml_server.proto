@@ -1,0 +1,163 @@
+syntax = "proto3";
+package lt_ml_server;
+option java_package = "org.languagetool.rules.ml";
+option java_outer_classname = "MLServerProto";
+
+message AnalyzeRequest {
+    string text = 1;
+    ProcessingOptions options = 2;
+}
+
+message ProcessingOptions {
+    string language = 1;
+    bool tempOff = 2;
+    enum Level {
+        picky = 0;
+        academic = 1;
+        clarity = 2;
+        professional = 3;
+        creative = 4;
+        customer = 5;
+        jobapp = 6;
+        objective = 7;
+        elegant = 8;
+        defaultLevel = 9;
+    }
+    Level level = 3;
+    bool premium = 4;
+    bool enabledOnly = 5;
+    repeated string enabledRules = 6;
+    repeated string disabledRules = 7;
+}
+
+message AnalyzeResponse {
+    repeated AnalyzedSentence sentences = 1;
+}
+
+message ProcessRequest {
+    repeated AnalyzedSentence sentences = 1;
+    ProcessingOptions options = 2;
+}
+
+message ProcessResponse {
+    repeated Match rawMatches = 1;
+    repeated Match matches = 2;
+}
+
+service ProcessingServer {
+    rpc Analyze (AnalyzeRequest) returns (AnalyzeResponse) {}
+    rpc Process (ProcessRequest) returns (ProcessResponse) {}
+}
+
+service MLServer {
+    rpc Match (MatchRequest) returns (MatchResponse) {}
+    rpc MatchAnalyzed (AnalyzedMatchRequest) returns (MatchResponse) {}
+}
+
+message AnalyzedMatchRequest {
+    repeated AnalyzedSentence sentences = 1;
+    bool inputLogging = 2;
+    repeated int64 textSessionID = 3;
+}
+
+message AnalyzedSentence {
+    string text = 1;
+    repeated AnalyzedTokenReadings tokens = 2;
+}
+
+message AnalyzedTokenReadings {
+    repeated AnalyzedToken readings = 1;
+    repeated string chunkTags = 2;
+    int32 startPos = 3;
+}
+
+message AnalyzedToken {
+    string token = 1;
+    string posTag = 2;
+    string lemma = 3;
+}
+
+service PostProcessingServer {
+    rpc Process(PostProcessingRequest) returns (MatchResponse) {}
+}
+
+message PostProcessingRequest {
+    repeated string sentences = 1;
+    repeated MatchList matches = 2;
+    bool inputLogging = 3;
+    repeated int64 textSessionID = 4;
+}
+
+message MatchRequest {
+    repeated string sentences = 1;
+    bool inputLogging = 2;
+    repeated int64 textSessionID = 3;
+}
+
+message MatchResponse {
+    repeated MatchList sentenceMatches = 1;
+}
+
+message MatchList {
+    repeated Match matches = 1;
+}
+
+message Match {
+    uint32 offset = 1;
+    uint32 length = 2;
+    string id = 3;
+    string sub_id = 4;
+    repeated string suggestions = 5;
+    string ruleDescription = 6;
+    string matchDescription = 7;
+    string matchShortDescription = 8;
+    string url = 9;
+    repeated SuggestedReplacement suggestedReplacements = 10;
+    bool autoCorrect = 11;
+    enum MatchType {
+        UnknownWord = 0;
+        Hint = 1;
+        Other = 2;
+    }
+    MatchType type = 12;
+    sint32 contextForSureMatch = 13;
+    Rule rule = 14;
+}
+
+message Rule {
+    string sourceFile = 1;
+    string issueType = 2;
+    bool tempOff = 3;
+    RuleCategory category = 4;
+    bool isPremium = 5;
+    enum Tag {
+        picky = 0;
+        academic = 1;
+        clarity = 2;
+        professional = 3;
+        creative = 4;
+        customer = 5;
+        jobapp = 6;
+        objective = 7;
+        elegant = 8;
+    }
+    repeated Tag tags = 6;
+}
+
+message RuleCategory {
+    string id = 1;
+    string name = 2;
+}
+
+message SuggestedReplacement {
+    string replacement = 1;
+    string description = 2;
+    string suffix = 3;
+    float confidence = 4;
+    enum SuggestionType {
+        Default = 0;
+        Translation = 1;
+        Curated = 2;
+    }
+    SuggestionType type = 5;
+}

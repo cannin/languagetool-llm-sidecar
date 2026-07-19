@@ -1,0 +1,5 @@
+.git
+.env
+target
+languagetool-server.local.properties
+sidecar.properties
