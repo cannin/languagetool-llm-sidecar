@@ -1,9 +1,11 @@
 # LanguageTool LLM sidecar
 
-This repository builds one Docker image containing stock LanguageTool and a Java gRPC sidecar. No LanguageTool core source is modified.
+This project is a working demo of using a [LiteLLM](https://www.litellm.ai/) proxy to add semantic rules to LanguageTool: checks that are useful, but difficult to define with dictionaries, regular expressions, or traditional grammar patterns. The included examples detect direct and implied references to cats and flowers, and the same structure can be used for other policy-style rules.
+
+The demo packages stock LanguageTool and a Java gRPC sidecar in one Docker image. LanguageTool sends text to the sidecar through its native remote-rule mechanism, and the sidecar calls the LiteLLM proxy. No LanguageTool core source is modified.
 
 ```text
-Chrome -> LanguageTool HTTP :8081 -> LLM sidecar gRPC 127.0.0.1:50051 -> LLM API
+Chrome -> LanguageTool HTTP :8081 -> LLM sidecar gRPC 127.0.0.1:50051 -> LiteLLM proxy
 ```
 
 The container exposes only port 8081. Its entrypoint starts both JVMs, forwards shutdown signals, and exits if either process fails so Docker or Dokploy can restart it.
