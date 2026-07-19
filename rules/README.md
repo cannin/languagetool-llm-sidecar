@@ -1,13 +1,30 @@
 # Adding an LLM rule
 
-The sidecar loads every file ending in `.properties` in this directory when it starts. Files ending in `.example` are ignored.
+The repository's `rules/` directory is mounted at `/config/rules/` inside the container. The sidecar loads every `/config/rules/*.properties` file when it starts. Files ending in `.example` are ignored.
 
-1. Copy `example-rule.properties.example` to a descriptive `.properties` filename.
-2. Copy `example-prompt.txt.example` to a descriptive `.txt` filename.
-3. Set `promptFile` in the descriptor to the prompt filename.
-4. Give the rule a unique uppercase ID ending in `_LLM`.
-5. Replace the prompt's placeholder topic, positive examples, and ambiguity guidance.
-6. Restart only the sidecar and send matching text through LT's `/v2/check` endpoint.
+From the repository root, create a descriptor and prompt with matching descriptive names:
+
+```bash
+cp rules/example-rule.properties.example rules/my-topic.properties
+cp rules/example-prompt.txt.example rules/my-topic-prompt.txt
+```
+
+Then edit `rules/my-topic.properties`:
+
+```properties
+id = MY_TOPIC_LLM
+promptFile = my-topic-prompt.txt
+```
+
+The `promptFile` value is resolved relative to the descriptor file. For this layout, use only the prompt filename—not the host path `rules/my-topic-prompt.txt`. This keeps the descriptor portable between the repository and `/config/rules` in Docker. After mounting the directory, the relationship is:
+
+```text
+rules/my-topic.properties          -> /config/rules/my-topic.properties
+rules/my-topic-prompt.txt          -> /config/rules/my-topic-prompt.txt
+                                      ^ loaded by promptFile = my-topic-prompt.txt
+```
+
+Replace the prompt's placeholder topic, positive examples, and ambiguity guidance. Mount the directory with `--mount type=bind,src="$(pwd)/rules",dst=/config/rules,readonly`, restart the container, and send matching text through LT's `/v2/check` endpoint.
 
 Descriptor fields:
 
@@ -17,7 +34,7 @@ Descriptor fields:
 | `enabled` | no | `true` by default; set to `false` to skip the rule |
 | `shortMessage` | yes | Compact message shown by LanguageTool clients |
 | `description` | yes | Rule description returned by the LT API |
-| `promptFile` | yes | UTF-8 prompt path relative to this descriptor |
+| `promptFile` | yes | UTF-8 prompt filename or path relative to this descriptor's directory |
 | `categoryId` | no | Defaults to `LLM_POLICY` |
 | `categoryName` | no | Defaults to `LLM policy` |
 

@@ -143,12 +143,34 @@ LT_LLM_DISABLED_RULES=CATS_LLM,FLOWERS_LLM
 
 No Java or LanguageTool changes are required.
 
-1. Copy `rules/example-rule.properties.example` to a descriptive `.properties` filename.
-2. Copy `rules/example-prompt.txt.example` to a descriptive prompt filename.
-3. Give the rule a unique uppercase ID ending in `_LLM`.
-4. Set `promptFile` in the descriptor.
-5. Mount the rules directory at `/config/rules:ro`.
-6. Restart the container.
+Run these commands from the repository root to create a rule named `my-topic`:
+
+```bash
+cp rules/example-rule.properties.example rules/my-topic.properties
+cp rules/example-prompt.txt.example rules/my-topic-prompt.txt
+```
+
+Edit `rules/my-topic.properties`. Give the rule a unique uppercase ID ending in `_LLM`, and set `promptFile` to the name of the prompt file in the same directory:
+
+```properties
+id = MY_TOPIC_LLM
+promptFile = my-topic-prompt.txt
+```
+
+`promptFile` is resolved relative to the descriptor, so do not use the host repository path there. With the mount below, the files map as follows:
+
+| Repository file on the Docker host | File inside the container |
+| --- | --- |
+| `rules/my-topic.properties` | `/config/rules/my-topic.properties` |
+| `rules/my-topic-prompt.txt` | `/config/rules/my-topic-prompt.txt` |
+
+Mount the complete host `rules/` directory read-only at the sidecar's default rules directory:
+
+```bash
+--mount type=bind,src="$(pwd)/rules",dst=/config/rules,readonly
+```
+
+Then restart the container. The sidecar loads every `/config/rules/*.properties` file at startup; files ending in `.example` are ignored.
 
 Set `enabled = false` in an external descriptor to prevent that rule's LLM calls. See [rules/README.md](rules/README.md) for the complete descriptor and prompt contract.
 
