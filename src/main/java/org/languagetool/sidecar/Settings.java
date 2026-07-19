@@ -36,7 +36,6 @@ public record Settings(
       Map.entry("LT_LLM_ENABLED", "llm.enabled"),
       Map.entry("LT_LLM_DISABLED_RULES", "llm.disabledRules"),
       Map.entry("LT_LLM_API_BASE", "llm.apiBase"),
-      Map.entry("LT_LLM_MODEL", "llm.model"),
       Map.entry("LT_LLM_RULES_DIRECTORY", "llm.rulesDirectory"),
       Map.entry("LT_LLM_MINIMUM_SENTENCE_CHARACTERS", "llm.minimumSentenceCharacters"),
       Map.entry("LT_LLM_REQUEST_TIMEOUT_SECONDS", "llm.requestTimeoutSeconds"),
@@ -69,11 +68,16 @@ public record Settings(
 
     String apiKeyVariable = properties.getProperty("llm.apiKeyEnv", "LT_LLM_API_KEY").trim();
     String apiKey = environmentValue(apiKeyVariable, dotenv);
+    String llmModel = environmentValue("LT_LLM_MODEL", dotenv);
     boolean enabled = booleanValue(properties, "llm.enabled");
     List<PolicyDefinition> policies = PolicyRuleLoader.load(properties, configDirectory);
     if (enabled && !policies.isEmpty() && (apiKey == null || apiKey.isBlank())) {
       throw new IllegalArgumentException(
           "llm.enabled is true but " + apiKeyVariable + " is not set");
+    }
+    if (enabled && !policies.isEmpty() && (llmModel == null || llmModel.isBlank())) {
+      throw new IllegalArgumentException(
+          "llm.enabled is true but LT_LLM_MODEL is not set");
     }
 
     Path cacheDirectory = resolvePath(
@@ -85,7 +89,7 @@ public record Settings(
         enabled,
         URI.create(required(properties, "llm.apiBase").replaceAll("/+$", "")),
         apiKey == null ? "" : apiKey.trim(),
-        required(properties, "llm.model"),
+        llmModel == null ? "" : llmModel.trim(),
         policies,
         positiveInteger(properties, "llm.minimumSentenceCharacters"),
         Duration.ofSeconds(positiveInteger(properties, "llm.requestTimeoutSeconds")),
@@ -104,7 +108,6 @@ public record Settings(
     properties.setProperty("llm.disabledRules", "");
     properties.setProperty("llm.apiBase", "http://127.0.0.1:4000/v1");
     properties.setProperty("llm.apiKeyEnv", "LT_LLM_API_KEY");
-    properties.setProperty("llm.model", "gpt-5");
     properties.setProperty("llm.rulesDirectory", "rules");
     properties.setProperty("llm.minimumSentenceCharacters", "20");
     properties.setProperty("llm.requestTimeoutSeconds", "30");

@@ -7,7 +7,7 @@ llm.enabled = true
 llm.disabledRules =
 llm.apiBase = http://127.0.0.1:4000/v1
 llm.apiKeyEnv = LT_LLM_API_KEY
-llm.model = gpt-5
+# Set the model with LT_LLM_MODEL, for example LT_LLM_MODEL=gpt-5.
 # Every *.properties descriptor in this directory becomes another LLM rule.
 llm.rulesDirectory = rules
 llm.minimumSentenceCharacters = 20

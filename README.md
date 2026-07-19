@@ -28,7 +28,7 @@ Set the LiteLLM connection values in the shell, then run the single container. T
 ```bash
 export LT_LLM_API_BASE=https://litellm.example.com/v1
 export LT_LLM_API_KEY=YOUR_LITELLM_API_KEY
-export LT_LLM_MODEL=YOUR_LITELLM_MODEL
+export LT_LLM_MODEL=gpt-5
 
 docker run --name languagetool-llm \
   --env LT_LLM_API_BASE \
@@ -113,7 +113,7 @@ These are all environment variables added for the LiteLLM rule functionality. No
 | --- | --- | --- |
 | `LT_LLM_API_BASE` | `http://127.0.0.1:4000/v1` | OpenAI-compatible LiteLLM proxy base URL. Set it to an address reachable from the container; `127.0.0.1` refers to the container itself. |
 | `LT_LLM_API_KEY` | Not set | Bearer token sent to LiteLLM. Required when LLM checking is enabled and rules are loaded. Never commit this value or a populated `.env` file. |
-| `LT_LLM_MODEL` | `gpt-5` | Model or route name configured in the LiteLLM proxy. |
+| `LT_LLM_MODEL` | Not set | Required model or route name configured in the LiteLLM proxy, for example `gpt-5`. It is accepted only through the environment, not `sidecar.properties`. |
 | `LT_LLM_ENABLED` | `true` | Enables or disables all LLM checks. Must be `true` or `false`. |
 | `LT_LLM_DISABLED_RULES` | Empty | Comma-separated rule IDs to disable. |
 | `LT_LLM_RULES_DIRECTORY` | `/config/rules` | Directory containing external rule descriptors and prompt files. |
@@ -130,7 +130,7 @@ For example, a Dokploy deployment using an external LiteLLM proxy normally needs
 ```text
 LT_LLM_API_BASE=https://litellm.example.com/v1
 LT_LLM_API_KEY=YOUR_LITELLM_API_KEY
-LT_LLM_MODEL=YOUR_LITELLM_MODEL
+LT_LLM_MODEL=gpt-5
 ```
 
 Disable any number of rules without adding per-rule settings:
